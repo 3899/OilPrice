@@ -1,0 +1,11 @@
+{
+  "domain": "oilprice",
+  "name": "油价",
+  "version": "1.0.0",
+  "documentation": "https://github.com/3899/OilPrice",
+  "config_flow": true,
+  "dependencies": [],
+  "codeowners": ["@3899"],
+  "requirements": ["beautifulsoup4"],
+  "iot_class": "cloud_polling"
+}

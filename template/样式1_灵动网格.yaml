@@ -1,0 +1,69 @@
+type: vertical-stack
+cards:
+  - type: markdown
+    content: >-
+      <ha-icon icon="mdi:calendar-clock" style="color: var(--primary-color);
+      width:18px; height:18px;"></ha-icon> 调价窗口：{{
+      states('sensor.oilprice_shanxisheng_xianshi_next_adjust_date') }}<br>
+      <ha-icon icon="mdi:trending-up" style="color: var(--primary-color);
+      width:18px; height:18px;"></ha-icon> 预测趋势：{{
+      states('sensor.oilprice_shanxisheng_xianshi_trend') }}
+    title: ⛽ 西安今日油价
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: markdown
+        content: >-
+          {% set change =
+          state_attr('sensor.oilprice_shanxisheng_xianshi_gas92',
+          'change_amount') | float(0) %} {% set color = '#f44336' if change > 0
+          else ('#4caf50' if change < 0 else '#ff9800') %}
+
+          <center style="line-height: 1.2;">
+            <div style="color: var(--secondary-text-color); font-weight: 500; margin-bottom: 4px;"><ha-icon icon="mdi:gas-station" style="color: #FF9800;"></ha-icon> 92# 汽油</div>
+            <div style="font-size: 24px; font-weight: bold;">{{ states('sensor.oilprice_shanxisheng_xianshi_gas92') }}</div>
+            <div style="font-size: 12px; font-weight: bold; margin-top: 4px;"><font color="{{ color }}">{{ '↑' if change > 0 else ('↓' if change < 0 else '-') }} {{ change | abs }}</font></div>
+          </center>
+      - type: markdown
+        content: >-
+          {% set change =
+          state_attr('sensor.oilprice_shanxisheng_xianshi_gas95',
+          'change_amount') | float(0) %} {% set color = '#f44336' if change > 0
+          else ('#4caf50' if change < 0 else '#ff9800') %}
+
+          <center style="line-height: 1.2;">
+            <div style="color: var(--secondary-text-color); font-weight: 500; margin-bottom: 4px;"><ha-icon icon="mdi:gas-station" style="color: #E91E63;"></ha-icon> 95# 汽油</div>
+            <div style="font-size: 24px; font-weight: bold;">{{ states('sensor.oilprice_shanxisheng_xianshi_gas95') }}</div>
+            <div style="font-size: 12px; font-weight: bold; margin-top: 4px;"><font color="{{ color }}">{{ '↑' if change > 0 else ('↓' if change < 0 else '-') }} {{ change | abs }}</font></div>
+          </center>
+      - type: markdown
+        content: >-
+          {% set change =
+          state_attr('sensor.oilprice_shanxisheng_xianshi_gas98',
+          'change_amount') | float(0) %} {% set color = '#f44336' if change > 0
+          else ('#4caf50' if change < 0 else '#ff9800') %}
+
+          <center style="line-height: 1.2;">
+            <div style="color: var(--secondary-text-color); font-weight: 500; margin-bottom: 4px;"><ha-icon icon="mdi:gas-station-outline" style="color: #9C27B0;"></ha-icon> 98# 汽油</div>
+            <div style="font-size: 24px; font-weight: bold;">{{ states('sensor.oilprice_shanxisheng_xianshi_gas98') }}</div>
+            <div style="font-size: 12px; font-weight: bold; margin-top: 4px;"><font color="{{ color }}">{{ '↑' if change > 0 else ('↓' if change < 0 else '-') }} {{ change | abs }}</font></div>
+          </center>
+      - type: markdown
+        content: >-
+          {% set change = state_attr('sensor.oilprice_shanxisheng_xianshi_die0',
+          'change_amount') | float(0) %} {% set color = '#f44336' if change > 0
+          else ('#4caf50' if change < 0 else '#ff9800') %}
+
+          <center style="line-height: 1.2;">
+            <div style="color: var(--secondary-text-color); font-weight: 500; margin-bottom: 4px;"><ha-icon icon="mdi:barrel" style="color: #607D8B;"></ha-icon> 0# 柴油</div>
+            <div style="font-size: 24px; font-weight: bold;">{{ states('sensor.oilprice_shanxisheng_xianshi_die0') }}</div>
+            <div style="font-size: 12px; font-weight: bold; margin-top: 4px;"><font color="{{ color }}">{{ '↑' if change > 0 else ('↓' if change < 0 else '-') }} {{ change | abs }}</font></div>
+          </center>
+  - type: entities
+    entities:
+      - entity: sensor.oilprice_shanxisheng_xianshi_tips
+      - entity: sensor.oilprice_shanxisheng_xianshi_update_time
+      - entity: button.oilprice_shanxisheng_xianshi_refresh
+    show_header_toggle: true
+    state_color: true

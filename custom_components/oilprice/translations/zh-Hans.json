@@ -1,0 +1,41 @@
+{
+  "title": "油价",
+  "config": {
+    "step": {
+      "user": {
+        "title": "添加油价",
+        "description": "请选择省份和自动更新方式。",
+        "data": {
+          "region": "省份",
+          "update_schedule_mode": "更新方式"
+        }
+      },
+      "city": {
+        "title": "选择城市/价区",
+        "description": "当前省份支持按城市差异化油价查询，可选择具体城市或保留全省默认价。",
+        "data": {
+          "city": "城市"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "无法连接油价服务，请稍后重试。",
+      "invalid_region": "当前地区暂不支持，请重新选择。",
+      "unknown": "出现未知错误，请查看日志。"
+    },
+    "abort": {
+      "already_configured": "该地区已添加，无需重复配置。"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "更新设置",
+        "description": "设置油价数据的自动更新方式。",
+        "data": {
+          "update_schedule_mode": "更新方式"
+        }
+      }
+    }
+  }
+}

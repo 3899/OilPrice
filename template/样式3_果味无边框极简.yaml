@@ -1,0 +1,73 @@
+type: vertical-stack
+cards:
+  - type: markdown
+    content: >-
+      <ha-icon icon="mdi:calendar-clock" style="color: var(--primary-color);
+      width:18px; height:18px;"></ha-icon> 调价窗口：{{
+      states('sensor.oilprice_shanxisheng_xianshi_next_adjust_date') }}<br>
+      <ha-icon icon="mdi:trending-up" style="color: var(--primary-color);
+      width:18px; height:18px;"></ha-icon> 预测趋势：{{
+      states('sensor.oilprice_shanxisheng_xianshi_trend') }}
+    title: ⛽ 西安今日油价
+  - type: markdown
+    content: >-
+      {% set price = states('sensor.oilprice_shanxisheng_xianshi_gas92') %} {%
+      set change = state_attr('sensor.oilprice_shanxisheng_xianshi_gas92',
+      'change_amount') | float(0) %} {% set trend_color = '#FF3B30' if change >
+      0 else ('#34C759' if change < 0 else '#9e9e9e') %} <ha-icon
+      icon="mdi:gas-station" style="color: #FF9800;"></ha-icon> **92号汽油**
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+      style="font-size: 20px; font-weight: 800; color:
+      var(--primary-text-color);">{{ price }}</span>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font
+      color="{{ trend_color }}" style="font-size: 12px; font-weight: 700;">{{
+      '↑' if change > 0 else ('↓' if change < 0 else '') }} {{ change | abs
+      }}</font>
+  - type: markdown
+    content: >-
+      {% set price = states('sensor.oilprice_shanxisheng_xianshi_gas95') %} {%
+      set change = state_attr('sensor.oilprice_shanxisheng_xianshi_gas95',
+      'change_amount') | float(0) %} {% set trend_color = '#FF3B30' if change >
+      0 else ('#34C759' if change < 0 else '#9e9e9e') %} <ha-icon
+      icon="mdi:gas-station" style="color: #E91E63;"></ha-icon> **95号汽油**
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+      style="font-size: 20px; font-weight: 800; color:
+      var(--primary-text-color);">{{ price }}</span>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font
+      color="{{ trend_color }}" style="font-size: 12px; font-weight: 700;">{{
+      '↑' if change > 0 else ('↓' if change < 0 else '') }} {{ change | abs
+      }}</font>
+  - type: markdown
+    content: >-
+      {% set price = states('sensor.oilprice_shanxisheng_xianshi_gas98') %} {%
+      set change = state_attr('sensor.oilprice_shanxisheng_xianshi_gas98',
+      'change_amount') | float(0) %} {% set trend_color = '#FF3B30' if change >
+      0 else ('#34C759' if change < 0 else '#9e9e9e') %} <ha-icon
+      icon="mdi:gas-station" style="color: #E91E63;"></ha-icon> **98号汽油**
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+      style="font-size: 20px; font-weight: 800; color:
+      var(--primary-text-color);">{{ price }}</span>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="{{
+      trend_color }}" style="font-size: 12px; font-weight: 700;">{{ '↑' if
+      change > 0 else ('↓' if change < 0 else '') }} {{ change | abs }}</font>
+  - type: markdown
+    content: >-
+      {% set price = states('sensor.oilprice_shanxisheng_xianshi_die0') %} {%
+      set change = state_attr('sensor.oilprice_shanxisheng_xianshi_die0',
+      'change_amount') | float(0) %} {% set trend_color = '#FF3B30' if change >
+      0 else ('#34C759' if change < 0 else '#9e9e9e') %} <ha-icon
+      icon="mdi:barrel" style="color: #607D8B;"></ha-icon> **0号柴油**
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
+      style="font-size: 20px; font-weight: 800; color:
+      var(--primary-text-color);">{{ price }}</span>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font
+      color="{{ trend_color }}" style="font-size: 12px; font-weight: 700;">{{
+      '↑' if change > 0 else ('↓' if change < 0 else '') }} {{ change | abs
+      }}</font>
+  - show_name: true
+    show_icon: true
+    type: button
+    entity: button.oilprice_shanxisheng_xianshi_refresh
+    name: 立即刷新数据
+    icon: mdi:cloud-refresh
+    icon_height: 20px

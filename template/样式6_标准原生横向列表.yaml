@@ -1,0 +1,59 @@
+type: entities
+title: ⛽ 西安今日油价
+entities:
+  - type: custom:multiple-entity-row
+    entity: sensor.oilprice_shanxisheng_xianshi_gas92
+    name: 92号汽油
+    icon: mdi:gas-station
+    show_state: false
+    entities:
+      - entity: sensor.oilprice_shanxisheng_xianshi_gas92
+        name: 今日价格
+      - attribute: change_amount
+        name: 较上轮变动
+  - type: custom:multiple-entity-row
+    entity: sensor.oilprice_shanxisheng_xianshi_gas95
+    name: 95号汽油
+    icon: mdi:gas-station
+    show_state: false
+    entities:
+      - entity: sensor.oilprice_shanxisheng_xianshi_gas95
+        name: 今日价格
+      - attribute: change_amount
+        name: 较上轮变动
+  - type: custom:multiple-entity-row
+    entity: sensor.oilprice_shanxisheng_xianshi_gas98
+    name: 98号汽油
+    icon: mdi:gas-station
+    show_state: false
+    entities:
+      - entity: sensor.oilprice_shanxisheng_xianshi_gas98
+        name: 今日价格
+      - attribute: change_amount
+        name: 较上轮变动
+  - type: custom:multiple-entity-row
+    entity: sensor.oilprice_shanxisheng_xianshi_die0
+    name: 0号柴油
+    icon: mdi:barrel
+    show_state: false
+    entities:
+      - entity: sensor.oilprice_shanxisheng_xianshi_die0
+        name: 今日价格
+      - attribute: change_amount
+        name: 较上轮变动
+  - type: divider
+  - entity: sensor.oilprice_shanxisheng_xianshi_tips
+    name: 调价动态
+    icon: mdi:bullhorn-outline
+  - entity: sensor.oilprice_shanxisheng_xianshi_update_time
+    name: 最近更新时间
+    icon: mdi:clock-outline
+  - type: divider
+  - entity: sensor.oilprice_shanxisheng_xianshi_next_adjust_date
+    name: 调价日期
+  - entity: sensor.oilprice_shanxisheng_xianshi_trend
+    name: 预测趋势
+  - type: divider
+  - entity: button.oilprice_shanxisheng_xianshi_refresh
+    name: 手动获取最新数据
+    icon: mdi:refresh
