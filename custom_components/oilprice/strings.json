@@ -1,0 +1,41 @@
+{
+  "title": "OilPrice",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add OilPrice",
+        "description": "Select a province and automatic update mode.",
+        "data": {
+          "region": "Province",
+          "update_schedule_mode": "Update mode"
+        }
+      },
+      "city": {
+        "title": "Select City",
+        "description": "This province supports city-specific pricing. Select a city or keep the province-wide default.",
+        "data": {
+          "city": "City"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to OilPrice service. Please try again later.",
+      "invalid_region": "Selected region is not supported right now.",
+      "unknown": "Unexpected error occurred. Check logs for details."
+    },
+    "abort": {
+      "already_configured": "This region is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Update settings",
+        "description": "Configure how OilPrice data is refreshed automatically.",
+        "data": {
+          "update_schedule_mode": "Update mode"
+        }
+      }
+    }
+  }
+}

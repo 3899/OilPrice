@@ -1,0 +1,38 @@
+type: vertical-stack
+cards:
+  - type: glance
+    title: ⛽ 西安今日油价
+    columns: 4
+    entities:
+      - entity: sensor.oilprice_shanxisheng_xianshi_gas92
+        name: 92#
+        icon: mdi:gas-station
+      - entity: sensor.oilprice_shanxisheng_xianshi_gas95
+        name: 95#
+        icon: mdi:gas-station
+      - entity: sensor.oilprice_shanxisheng_xianshi_gas98
+        name: 98#
+        icon: mdi:gas-station
+      - entity: sensor.oilprice_shanxisheng_xianshi_die0
+        name: 0#柴油
+        icon: mdi:barrel
+  - type: markdown
+    content: |-
+      📢 调价提示： {{ states('sensor.oilprice_shanxisheng_xianshi_tips') }}
+
+      🕒 最后同步时间：{{ states('sensor.oilprice_shanxisheng_xianshi_update_time') }}
+  - type: entities
+    entities:
+      - entity: sensor.oilprice_shanxisheng_xianshi_next_adjust_date
+        name: 调价日期
+      - entity: sensor.oilprice_shanxisheng_xianshi_trend
+        name: 预测趋势
+  - type: button
+    entity: button.oilprice_shanxisheng_xianshi_refresh
+    name: 立即刷新数据
+    icon: mdi:cloud-refresh
+    icon_height: 20px
+    tap_action:
+      action: toggle
+    show_name: true
+    show_icon: true

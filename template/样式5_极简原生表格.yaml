@@ -1,0 +1,35 @@
+type: vertical-stack
+cards:
+  - type: markdown
+    content: >-
+      ## ⛽ 西安今日油价
+
+      <table width="100%" style="text-align: left;">
+        <tr><th>油品</th><th>当前价格</th><th>本轮变动</th></tr>
+        {%- macro row(name, icon, entity, theme) -%}
+        {%- set p = states(entity) -%}
+        {%- set c = state_attr(entity, 'change_amount') | float(0) -%}
+        {%- set clr = '#FF3B30' if c > 0 else ('#34C759' if c < 0 else '#9e9e9e') -%}
+        <tr>
+          <td style="padding: 4px 0;"><ha-icon icon="{{ icon }}" style="color:{{ theme }}; width:18px; height:18px;"></ha-icon> <strong>{{ name }}</strong></td>
+          <td><strong>{{ p }}</strong></td>
+          <td><font color="{{ clr }}"><strong>{{ '↑' if c > 0 else ('↓' if c < 0 else '-') }} {{ c | abs }}</strong></font></td>
+        </tr>
+        {%- endmacro -%}
+        {{ row('92# 汽油', 'mdi:gas-station', 'sensor.oilprice_shanxisheng_xianshi_gas92', '#FF9800') }}
+        {{ row('95# 汽油', 'mdi:gas-station', 'sensor.oilprice_shanxisheng_xianshi_gas95', '#E91E63') }}
+        {{ row('98# 汽油', 'mdi:gas-station-outline', 'sensor.oilprice_shanxisheng_xianshi_gas98', '#9C27B0') }}
+        {{ row('0# 柴油', 'mdi:barrel', 'sensor.oilprice_shanxisheng_xianshi_die0', '#607D8B') }}
+      </table> <br> --- <ha-icon icon="mdi:calendar-clock"
+      style="color:var(--primary-color); width:18px; height:18px;"></ha-icon>
+      调价窗口： {{ states('sensor.oilprice_shanxisheng_xianshi_next_adjust_date') }}
+      <br><br> --- <ha-icon icon="mdi:bullhorn-outline"
+      style="color:var(--primary-color); width:18px; height:18px;"></ha-icon>
+      预测趋势： {{ states('sensor.oilprice_shanxisheng_xianshi_trend') }}
+  - show_name: true
+    show_icon: false
+    type: button
+    entity: button.oilprice_shanxisheng_xianshi_refresh
+    name: 手动获取最新数据
+    icon: mdi:refresh
+    show_state: false

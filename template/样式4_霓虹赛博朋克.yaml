@@ -1,0 +1,94 @@
+type: vertical-stack
+cards:
+  - type: markdown
+    content: >
+      <div style="color: #0ff; font-family: monospace; font-size: 14px;
+      font-weight: bold;">&gt; OIL_INDEX [XIAN]
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UPDATE_TIME: {{
+      states('sensor.oilprice_shanxisheng_xianshi_update_time')[0:10] }} </div>
+    title: ⛽ 西安今日油价
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+      - type: markdown
+        content: >-
+          {% set price = states('sensor.oilprice_shanxisheng_xianshi_gas92') %}
+
+          {% set change =
+          state_attr('sensor.oilprice_shanxisheng_xianshi_gas92',
+          'change_amount') | float(0) %}
+
+          {% set color = '#ff0055' if change > 0 else ('#00ffaa' if change < 0
+          else '#9e9e9e') %}
+
+          <center style="border-left: 2px solid #ff9900; padding-left: 10px;">
+            <div style="color: #aaa; font-size: 11px; margin-bottom: 6px;"><ha-icon icon="mdi:gas-station" style="color:#ff9900; width: 14px; height: 14px;"></ha-icon> GAS.92</div>
+            <div style="font-size: 24px; font-weight: 900; font-family: monospace; margin-bottom: 4px; color: #ff9900;">{{ price }}</div>
+            <div style="font-size: 12px; font-weight: bold;"><font color="{{ color }}">DIFF: {{ '+' if change > 0 else '' }}{{ change | abs }}</font></div>
+          </center>
+      - type: markdown
+        content: >-
+          {% set price = states('sensor.oilprice_shanxisheng_xianshi_gas95') %}
+
+          {% set change =
+          state_attr('sensor.oilprice_shanxisheng_xianshi_gas95',
+          'change_amount') | float(0) %}
+
+          {% set color = '#ff0055' if change > 0 else ('#00ffaa' if change < 0
+          else '#9e9e9e') %}
+
+          <center style="border-left: 2px solid #ff9900; padding-left: 10px;">
+            <div style="color: #aaa; font-size: 11px; margin-bottom: 6px;"><ha-icon icon="mdi:gas-station" style="color:#ff9900; width: 14px; height: 14px;"></ha-icon> GAS.95</div>
+            <div style="font-size: 24px; font-weight: 900; font-family: monospace; margin-bottom: 4px; color: #ff9900;">{{ price }}</div>
+            <div style="font-size: 12px; font-weight: bold;"><font color="{{ color }}">DIFF: {{ '+' if change > 0 else '' }}{{ change | abs }}</font></div>
+          </center>
+      - type: markdown
+        content: >-
+          {% set price = states('sensor.oilprice_shanxisheng_xianshi_gas98') %}
+
+          {% set change =
+          state_attr('sensor.oilprice_shanxisheng_xianshi_gas98',
+          'change_amount') | float(0) %}
+
+          {% set color = '#ff0055' if change > 0 else ('#00ffaa' if change < 0
+          else '#9e9e9e') %}
+
+          <center style="border-left: 2px solid #ff9900; padding-left: 10px;">
+            <div style="color: #aaa; font-size: 11px; margin-bottom: 6px;"><ha-icon icon="mdi:gas-station" style="color:#ff9900; width: 14px; height: 14px;"></ha-icon> GAS.98</div>
+            <div style="font-size: 24px; font-weight: 900; font-family: monospace; margin-bottom: 4px; color: #ff9900;">{{ price }}</div>
+            <div style="font-size: 12px; font-weight: bold;"><font color="{{ color }}">DIFF: {{ '+' if change > 0 else '' }}{{ change | abs }}</font></div>
+          </center>
+      - type: markdown
+        content: >-
+          {% set price = states('sensor.oilprice_shanxisheng_xianshi_die0') %}
+
+          {% set change = state_attr('sensor.oilprice_shanxisheng_xianshi_die0',
+          'change_amount') | float(0) %}
+
+          {% set color = '#ff0055' if change > 0 else ('#00ffaa' if change < 0
+          else '#9e9e9e') %}
+
+          <center style="border-left: 2px solid #ff9900; padding-left: 10px;">
+            <div style="color: #aaa; font-size: 11px; margin-bottom: 6px;"><ha-icon icon="mdi:gas-station" style="color:#ff9900; width: 14px; height: 14px;"></ha-icon> DIESEL.0</div>
+            <div style="font-size: 24px; font-weight: 900; font-family: monospace; margin-bottom: 4px; color: #ff9900;">{{ price }}</div>
+            <div style="font-size: 12px; font-weight: bold;"><font color="{{ color }}">DIFF: {{ '+' if change > 0 else '' }}{{ change | abs }}</font></div>
+          </center>
+  - type: markdown
+    content: >-
+      <div style="font-size: 11px; color: #ffcc00;"><ha-icon
+      icon="mdi:bell-ring-outline" style="width:14px; height:14px;"></ha-icon>
+      NEXT: {{ states('sensor.oilprice_shanxisheng_xianshi_next_adjust_date')
+      }}</div>
+
+      <div style="font-size: 11px; color: #ffcc00;"><ha-icon
+      icon="mdi:trending-down" style="width:14px; height:14px;"></ha-icon>
+      TREND: {{ states('sensor.oilprice_shanxisheng_xianshi_trend') }}</div>
+  - show_name: true
+    show_icon: true
+    type: button
+    entity: button.oilprice_shanxisheng_xianshi_refresh
+    name: "> EXECUTE_SYNC"
+    icon: mdi:console-line
+    icon_height: 20px
