@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
-from datetime import timedelta
+from datetime import datetime, timedelta
 import logging
 from typing import Any
 
@@ -14,6 +14,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from homeassistant.util import dt as dt_util
 
 from .api import (
+    OilPriceData,
     OilPriceApiError,
     OilPriceCannotConnectError,
     OilPriceInvalidRegionError,
@@ -53,7 +54,7 @@ class OilPriceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._store = Store(hass, 1, self._history_store_key)
         self._history_data: dict[str, str] = {}
         self._unsub_tracker = None
-        self._scheduled_target_time = None
+        self._scheduled_target_time: datetime | None = None
 
     @property
     def province(self) -> str:
@@ -76,7 +77,7 @@ class OilPriceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.data = self._history_data.copy()
         await super().async_config_entry_first_refresh()
 
-    async def _async_update_data(self) -> dict[str, Any]:
+    async def _async_update_data(self) -> OilPriceData:
         """Fetch latest oilprice data."""
         try:
             current_data = await async_fetch_oilprice(self.hass, self._final_query_code)
@@ -129,16 +130,42 @@ class OilPriceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if needs_save:
             await self._store.async_save(self._history_data)
 
-    def _schedule_next_update(self, current_data: dict[str, Any]) -> None:
-        """Schedule the next absolute refresh time."""
+    def _next_daily_refresh_time(self) -> datetime:
+        """Return the default daily refresh time in China local time."""
         china_tz = dt_util.get_time_zone("Asia/Shanghai") or dt_util.DEFAULT_TIME_ZONE
         local_now = dt_util.now().astimezone(china_tz)
-        next_daily = (local_now + timedelta(days=1)).replace(
+        return (local_now + timedelta(days=1)).replace(
             hour=0,
             minute=5,
             second=0,
             microsecond=0,
         )
+
+    def _schedule_refresh_at(self, new_target_time: datetime) -> None:
+        """Schedule a single refresh callback at the given absolute time."""
+        if self._scheduled_target_time == new_target_time:
+            return
+
+        if self._unsub_tracker is not None:
+            self._unsub_tracker()
+            self._unsub_tracker = None
+
+        self._scheduled_target_time = new_target_time
+        self._unsub_tracker = async_track_point_in_time(
+            self.hass,
+            self._handle_alarm_trigger,
+            new_target_time,
+        )
+
+    def _schedule_fallback_refresh(self) -> None:
+        """Schedule the conservative fallback refresh after a failed update."""
+        self._schedule_refresh_at(self._next_daily_refresh_time())
+
+    def _schedule_next_update(self, current_data: dict[str, Any]) -> None:
+        """Schedule the next absolute refresh time."""
+        next_daily = self._next_daily_refresh_time()
+        china_tz = dt_util.get_time_zone("Asia/Shanghai") or dt_util.DEFAULT_TIME_ZONE
+        local_now = dt_util.now().astimezone(china_tz)
 
         if self._schedule_mode == SCHEDULE_MODE_DAILY:
             new_target_time = next_daily
@@ -152,22 +179,18 @@ class OilPriceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             else:
                 new_target_time = adjust_at
 
-        if self._scheduled_target_time == new_target_time:
-            return
-
-        if self._unsub_tracker is not None:
-            self._unsub_tracker()
-
-        self._scheduled_target_time = new_target_time
-        self._unsub_tracker = async_track_point_in_time(
-            self.hass,
-            self._handle_alarm_trigger,
-            new_target_time,
-        )
+        self._schedule_refresh_at(new_target_time)
 
     async def _handle_alarm_trigger(self, _trigger_time) -> None:
         """Handle an absolute-time refresh trigger."""
-        await self.async_request_refresh()
+        self._unsub_tracker = None
+        self._scheduled_target_time = None
+
+        try:
+            await self.async_request_refresh()
+        except Exception:
+            _LOGGER.exception("Scheduled oilprice refresh failed")
+            self._schedule_fallback_refresh()
 
     def async_unload(self) -> None:
         """Cancel the scheduled refresh callback."""

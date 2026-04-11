@@ -13,7 +13,7 @@
     </a >
     <a href="https://github.com/3899/OilPrice/releases">
       <img
-        src="https://img.shields.io/github/package-json/v/3899/OilPrice?style=flat-square"
+        src="https://img.shields.io/github/v/release/3899/OilPrice?style=flat-square"
       />
     </a >
     <a href="https://github.com/3899/OilPrice/releases">
@@ -56,7 +56,7 @@
 
 ### 🛠️ 手动安装
 
-1. [下载本项目](https://github.com/3899/OilPrice/archive/main.zip)
+1. [下载本项目](https://github.com/3899/OilPrice/releases/latest)
 2. 将 `custom_components/oilprice` 复制到 Home Assistant 配置目录下的 `custom_components` 文件夹
 3. 重启 Home Assistant
 
@@ -365,6 +365,34 @@ config/
 - `multiple-entity-row`
 
 
+## 🚀 版本更新记录
+
+### 📌 v1.0.1
+
+本次版本为底层质量升级，重点优化油价实体稳定性、刷新可靠性及 Home Assistant 兼容性。
+- 🏷️ 油价实体标准化
+	- 92#/95#/98#/0# 油价格实体升级为标准数值型传感器，新增 `元/升` 单位，适配 Home Assistant 数值计算、排序与仪表盘展示，同时保留 `change_amount` 属性，不影响原有使用习惯。
+- 🔄 自动刷新更稳定
+	- 优化单次刷新失败后永久停更问题，遇网络或源站异常仍会自动执行下一次刷新，保障更新不中断。
+- ✅ 数据校验更严格
+	- 仅成功解析出真实油价时才视为有效更新，避免空页面覆盖原有有效油价数据。
+- 🆔 实体身份更稳定
+	- 优化地区实体唯一标识规则，同一地区删除后重新添加，可沿用原有实体身份，减少重复生成新实体。
+- 📊 兼容原有显示习惯
+	- 新增油价单位不影响现有概览面板数字显示样式，仅优化实体语义与兼容性。
+
+### 📌 v1.0.0
+
+- 支持省份选择，部分省份支持第二步选择城市
+- 城市页始终提供“全省/省级默认价”兜底
+- 自动更新模式支持：
+  - `随调价窗口期更新（推荐）`
+  - `每日 00:05 更新`
+- 每个地区自动创建多个独立实体，而不是单实体多属性
+- 提供“立即更新”按钮
+- 四个油价实体额外提供 `change_amount` 属性
+
+
 ## 🧯 故障排查
 
 ### 1️⃣ 添加集成时报“无法连接”
@@ -394,4 +422,4 @@ config/
 
 ## 🎖️ 鸣谢
 
-> 本项目基于开源的 `oilprice-for-homeassistant` 二次开发，特此致谢。
+> 本项目基于开源项目 `oilprice-for-homeassistant` 进行深度重构，并在此之上完成二次开发与功能拓展，谨向原作者及开源社区致以诚挚谢意。

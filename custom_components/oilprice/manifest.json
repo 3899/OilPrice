@@ -1,7 +1,7 @@
 {
   "domain": "oilprice",
   "name": "油价",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "documentation": "https://github.com/3899/OilPrice",
   "config_flow": true,
   "dependencies": [],
