@@ -11,7 +11,6 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     CONF_CITY,
-    CONF_FINAL_QUERY_CODE,
     DOMAIN,
     location_key,
     location_slug,
@@ -43,11 +42,10 @@ class OilPriceRefreshButton(CoordinatorEntity[OilPriceDataUpdateCoordinator], Bu
         super().__init__(coordinator)
         self._province = entry.data["region"]
         self._city = entry.data.get(CONF_CITY, "")
-        self._final_query_code = entry.data.get(CONF_FINAL_QUERY_CODE, self._province)
         self._region_name = region_name(self._city or self._province)
         self._location_key = location_key(self._province, self._city)
         self._location_slug = location_slug(self._province, self._city)
-        self._attr_unique_id = f"{entry.entry_id}_refresh"
+        self._attr_unique_id = f"{self._location_key}_refresh"
         self._attr_suggested_object_id = f"oilprice_{self._location_slug}_refresh"
         self.entity_id = f"button.oilprice_{self._location_slug}_refresh"
         self._attr_name = f"油价-{self._region_name}-立即更新"

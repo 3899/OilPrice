@@ -13,6 +13,8 @@ DEFAULT_SCHEDULE_MODE = SCHEDULE_MODE_WINDOW
 
 DEFAULT_REGION = "beijing"
 ICON = "mdi:gas-station"
+PRICE_SENSOR_KEYS = ("gas92", "gas95", "gas98", "die0")
+PRICE_UNIT = "元/升"
 
 FUEL_KEY_TO_ATTR = {
     "92": "gas92",
@@ -22,10 +24,7 @@ FUEL_KEY_TO_ATTR = {
 }
 
 SENSOR_STATE_KEYS = (
-    "gas92",
-    "gas95",
-    "gas98",
-    "die0",
+    *PRICE_SENSOR_KEYS,
     "time",
     "tips",
     "trend",

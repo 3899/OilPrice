@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
@@ -13,9 +13,10 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     CONF_CITY,
-    CONF_FINAL_QUERY_CODE,
     DOMAIN,
     ICON,
+    PRICE_SENSOR_KEYS,
+    PRICE_UNIT,
     SENSOR_STATE_KEYS,
     location_key,
     location_slug,
@@ -69,21 +70,24 @@ class OilPriceFieldSensor(CoordinatorEntity[OilPriceDataUpdateCoordinator], Sens
         self._field_key = field_key
         self._province = entry.data["region"]
         self._city = entry.data.get(CONF_CITY, "")
-        self._final_query_code = entry.data.get(CONF_FINAL_QUERY_CODE, self._province)
         self._region_name = region_name(self._city or self._province)
         self._location_key = location_key(self._province, self._city)
         self._location_slug = location_slug(self._province, self._city)
+        self._is_price_sensor = field_key in PRICE_SENSOR_KEYS
 
         field_name, icon = _ENTITY_META[field_key]
         self._attr_icon = icon if field_key != "gas92" else ICON
 
-        self._attr_unique_id = f"{entry.entry_id}_{field_key}"
+        self._attr_unique_id = f"{self._location_key}_{field_key}"
         self._attr_suggested_object_id = f"oilprice_{self._location_slug}_{field_key}"
         self.entity_id = f"sensor.oilprice_{self._location_slug}_{field_key}"
         self._attr_name = f"油价-{self._region_name}-{field_name}"
+        if self._is_price_sensor:
+            self._attr_native_unit_of_measurement = PRICE_UNIT
+            self._attr_suggested_display_precision = 2
 
     @property
-    def native_value(self) -> Optional[str]:
+    def native_value(self) -> str | float | None:
         """Return the current field value."""
         if self._field_key == "friendly_name":
             return f"油价-{self._region_name}"
@@ -92,6 +96,11 @@ class OilPriceFieldSensor(CoordinatorEntity[OilPriceDataUpdateCoordinator], Sens
         value = data.get(self._field_key)
         if value is None:
             return None
+        if self._is_price_sensor:
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                return None
         return str(value)
 
     @property
@@ -99,11 +108,14 @@ class OilPriceFieldSensor(CoordinatorEntity[OilPriceDataUpdateCoordinator], Sens
         """Expose change_amount on fuel price sensors only."""
         attrs = dict(super().extra_state_attributes or {})
 
-        if self._field_key in {"gas92", "gas95", "gas98", "die0"}:
+        if self._is_price_sensor:
             data: dict[str, Any] = self.coordinator.data or {}
             change_key = f"{self._field_key}_change"
             if change_key in data:
-                attrs["change_amount"] = data[change_key]
+                try:
+                    attrs["change_amount"] = float(data[change_key])
+                except (TypeError, ValueError):
+                    attrs["change_amount"] = data[change_key]
 
         return attrs
 

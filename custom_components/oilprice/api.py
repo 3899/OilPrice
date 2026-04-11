@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from datetime import datetime, timedelta
-from typing import Any, Optional, Tuple
+from typing import Optional, Tuple, TypedDict
 
 from aiohttp import ClientError
 from bs4 import BeautifulSoup
@@ -20,6 +20,25 @@ _HEADERS = {
         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
     )
 }
+_PRICE_VALUE_PATTERN = re.compile(r"(?P<value>\d+\.\d+)(?:\s*元/升)?")
+
+
+class OilPriceData(TypedDict):
+    """Structured payload returned by the upstream parser."""
+
+    state: float | str
+    gas92: float | None
+    gas95: float | None
+    gas98: float | None
+    die0: float | None
+    time: str | None
+    tips: str | None
+    trend: str | None
+    next_adjust_date: str | None
+    next_adjust_at: datetime | None
+    update_time: str
+    region: str
+    region_name: str
 
 
 class OilPriceApiError(Exception):
@@ -34,7 +53,7 @@ class OilPriceInvalidRegionError(OilPriceApiError):
     """Raised when region is invalid or unsupported."""
 
 
-async def async_fetch_oilprice(hass, region: str) -> dict[str, Any]:
+async def async_fetch_oilprice(hass, region: str) -> OilPriceData:
     """Fetch and parse oil price information for a region."""
     session = async_get_clientsession(hass)
 
@@ -52,17 +71,17 @@ async def async_fetch_oilprice(hass, region: str) -> dict[str, Any]:
 
     table_prices = _extract_prices_from_tables(soup)
     parsed_prices = _extract_prices_by_section(normalized_text)
-    gas92 = _pick_price(table_prices.get("gas92"), parsed_prices.get("gas92"))
-    gas95 = _pick_price(table_prices.get("gas95"), parsed_prices.get("gas95"))
-    gas98 = _pick_price(table_prices.get("gas98"), parsed_prices.get("gas98"))
-    die0 = _pick_price(table_prices.get("die0"), parsed_prices.get("die0"))
+    gas92 = _to_float_price(_pick_price(table_prices.get("gas92"), parsed_prices.get("gas92")))
+    gas95 = _to_float_price(_pick_price(table_prices.get("gas95"), parsed_prices.get("gas95")))
+    gas98 = _to_float_price(_pick_price(table_prices.get("gas98"), parsed_prices.get("gas98")))
+    die0 = _to_float_price(_pick_price(table_prices.get("die0"), parsed_prices.get("die0")))
 
     time_text, tips_text = _extract_notice_fields(soup, normalized_text)
     trend_text = _extract_trend_text(tips_text)
     next_adjust_at = _extract_next_adjust_at(time_text)
     next_adjust_date = _format_adjust_datetime(next_adjust_at)
 
-    if not any([gas92, gas95, gas98, die0, time_text, tips_text]):
+    if not _has_any_core_price(gas92, gas95, gas98, die0):
         raise OilPriceInvalidRegionError
 
     update_time = dt_util.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -260,14 +279,28 @@ def _normalize_price_value(value: str) -> Optional[str]:
     """Normalize table price cell value."""
     if not value or value == "-":
         return None
-    if re.fullmatch(r"\d+\.\d+", value) is None:
+
+    match = _PRICE_VALUE_PATTERN.fullmatch(value)
+    if match is None:
         return None
-    return value
+    return match.group("value")
 
 
 def _pick_price(primary: Optional[str], fallback: Optional[str]) -> Optional[str]:
     """Pick primary parsed value, otherwise fallback value."""
     return primary if primary is not None else fallback
+
+
+def _to_float_price(value: Optional[str]) -> float | None:
+    """Convert a normalized price string to float."""
+    if value is None:
+        return None
+    return float(value)
+
+
+def _has_any_core_price(*values: float | None) -> bool:
+    """Return True when the page contains at least one usable fuel price."""
+    return any(value is not None for value in values)
 
 
 def _extract_time_text(page_text: str) -> Optional[str]:
