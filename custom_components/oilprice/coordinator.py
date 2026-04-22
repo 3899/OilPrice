@@ -55,6 +55,7 @@ class OilPriceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._history_data: dict[str, str] = {}
         self._unsub_tracker = None
         self._scheduled_target_time: datetime | None = None
+        self._last_prices_changed = False
 
     @property
     def province(self) -> str:
@@ -96,6 +97,7 @@ class OilPriceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """Update change_amount values and persist history as needed."""
         needs_save = not self._history_data
         save_data = dict(self._history_data)
+        prices_changed = False
 
         for key in ("gas92", "gas95", "gas98", "die0"):
             price_text = current_data.get(key)
@@ -120,12 +122,14 @@ class OilPriceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     _TWO_PLACES,
                     rounding=ROUND_HALF_UP,
                 )
+                prices_changed = True
                 needs_save = True
 
             current_data[f"{key}_change"] = float(change_amount)
             save_data[key] = f"{new_price:.2f}"
             save_data[f"{key}_change"] = f"{change_amount:.2f}"
 
+        self._last_prices_changed = prices_changed
         self._history_data = save_data
         if needs_save:
             await self._store.async_save(self._history_data)
@@ -167,13 +171,25 @@ class OilPriceDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         china_tz = dt_util.get_time_zone("Asia/Shanghai") or dt_util.DEFAULT_TIME_ZONE
         local_now = dt_util.now().astimezone(china_tz)
 
-        if self._schedule_mode == SCHEDULE_MODE_DAILY:
+        adjust_at = current_data.get("next_adjust_at")
+        if adjust_at is not None:
+            adjust_at = adjust_at.astimezone(china_tz) + timedelta(minutes=5)
+
+        retry_stale_window = (
+            adjust_at is not None
+            and adjust_at <= local_now
+            and adjust_at.date() == local_now.date()
+            and not self._last_prices_changed
+        )
+
+        if retry_stale_window:
+            # Some upstream pages update prices later than the official 24:00
+            # window. Keep polling briefly so change_amount is calculated from
+            # the old stored price once the page catches up.
+            new_target_time = min(local_now + timedelta(hours=1), next_daily)
+        elif self._schedule_mode == SCHEDULE_MODE_DAILY:
             new_target_time = next_daily
         else:
-            adjust_at = current_data.get("next_adjust_at")
-            if adjust_at is not None:
-                adjust_at = adjust_at.astimezone(china_tz) + timedelta(minutes=5)
-
             if adjust_at is None or adjust_at <= local_now:
                 new_target_time = next_daily
             else:
