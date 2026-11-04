@@ -108,8 +108,12 @@ def _extract_notice_fields(
     soup: BeautifulSoup, page_text: str
 ) -> Tuple[Optional[str], Optional[str]]:
     """Extract notice time and tips from huangjinjiage page text."""
-    page_lines = [_normalize_text(line) for line in soup.stripped_strings]
-    page_lines = [line for line in page_lines if line]
+    paragraph_lines = [
+        _normalize_text(p.get_text("", strip=True))
+        for p in soup.select("#JartCon p, .m-art-body p, p")
+    ]
+    stripped_lines = [_normalize_text(line) for line in soup.stripped_strings]
+    page_lines = [line for line in (paragraph_lines + stripped_lines) if line]
 
     time_text = _extract_time_text(page_text)
     tip_text = _extract_tips_text(page_lines)
@@ -309,6 +313,10 @@ def _extract_time_text(page_text: str) -> Optional[str]:
     if match is not None:
         return match.group(1).strip()
 
+    match = re.search(r"(下一轮油价调整(?:日期|时间)[为:：]?[^；。\n]+)", page_text)
+    if match is not None:
+        return match.group(1).strip()
+
     match = re.search(r"(下次国内成品油价调整窗口时间为[^；。\n]+)", page_text)
     if match is not None:
         return match.group(1).strip()
@@ -319,11 +327,19 @@ def _extract_time_text(page_text: str) -> Optional[str]:
 def _extract_tips_text(page_lines: list[str]) -> Optional[str]:
     """Extract latest trend tip text from news lines."""
     for line in page_lines:
-        if "今日油价最新消息" in line:
+        if "今日油价最新消息" in line or "今日油价涨跌最新消息" in line:
             return line
 
     for line in page_lines:
-        if "油价调整最新消息" in line:
+        if "新一轮" in line and "统计" in line and "油价" in line:
+            return line
+
+    for line in page_lines:
+        if "油价调整最新消息" in line and ("：" in line or ":" in line):
+            return line
+
+    for line in page_lines:
+        if "油价调整最新消息" in line and len(line) > 15:
             return line
 
     return None

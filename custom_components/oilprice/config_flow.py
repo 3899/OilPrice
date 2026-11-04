@@ -130,7 +130,7 @@ class OilPriceOptionsFlow(config_entries.OptionsFlow):
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
-        self.config_entry = config_entry
+        self._config_entry = config_entry
 
     async def async_step_init(self, user_input: Optional[dict[str, Any]] = None) -> FlowResult:
         """Update schedule mode."""
@@ -140,7 +140,7 @@ class OilPriceOptionsFlow(config_entries.OptionsFlow):
                 data={CONF_UPDATE_SCHEDULE_MODE: user_input[CONF_UPDATE_SCHEDULE_MODE]},
             )
 
-        default_mode = self.config_entry.options.get(
+        default_mode = self._config_entry.options.get(
             CONF_UPDATE_SCHEDULE_MODE,
             DEFAULT_SCHEDULE_MODE,
         )
