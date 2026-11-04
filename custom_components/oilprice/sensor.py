@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
@@ -85,6 +85,7 @@ class OilPriceFieldSensor(CoordinatorEntity[OilPriceDataUpdateCoordinator], Sens
         if self._is_price_sensor:
             self._attr_native_unit_of_measurement = PRICE_UNIT
             self._attr_suggested_display_precision = 2
+            self._attr_state_class = SensorStateClass.MEASUREMENT
 
     @property
     def native_value(self) -> str | float | None:
@@ -101,7 +102,10 @@ class OilPriceFieldSensor(CoordinatorEntity[OilPriceDataUpdateCoordinator], Sens
                 return float(value)
             except (TypeError, ValueError):
                 return None
-        return str(value)
+        text_val = str(value)
+        if len(text_val) > 255:
+            return text_val[:252] + "..."
+        return text_val
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
